@@ -251,6 +251,14 @@ export default function TrainingsPage() {
                     Exercícios
                   </Link>
 
+                  {/* Link para marcar presença */}
+                  <Link
+                    to={`/attendance/training/${training.id}`}
+                    className="text-green-500 underline"
+                  >
+                    Marcar Presença
+                  </Link>
+
                   {/* Link para editar treino */}
                   <Link
                     to={`/trainings/${training.id}/edit`}

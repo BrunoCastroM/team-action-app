@@ -1,6 +1,6 @@
-// src/App.tsx
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import SidebarLayout from './layouts/SidebarLayout';
+
 import Home from './pages/Home';
 import StatsPage from './pages/stats/StatsPage';
 import UsersPage from './pages/UsersPage';
@@ -28,6 +28,8 @@ import PavilionsPage from './pages/pavilions/PavilionsPage';
 import PavilionCreatePage from './pages/pavilions/PavilionCreatePage';
 import PavilionEditPage from './pages/pavilions/PavilionEditPage';
 import TeamMembersPage from './pages/teams/TeamMembersPage';
+
+import TrainingAttendancesPage from './pages/attendance/TrainingAttendancesPage';
 
 function App() {
   return (
@@ -146,6 +148,18 @@ function App() {
             <PrivateRoute>
               <SidebarLayout>
                 <TrainingEditPage />
+              </SidebarLayout>
+            </PrivateRoute>
+          }
+        />
+
+        {/* ATTENDANCES */}
+        <Route
+          path="/attendance/training/:trainingId"
+          element={
+            <PrivateRoute>
+              <SidebarLayout>
+                <TrainingAttendancesPage />
               </SidebarLayout>
             </PrivateRoute>
           }

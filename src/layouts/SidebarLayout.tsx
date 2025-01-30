@@ -10,7 +10,6 @@ import {
   FaClipboardCheck,
   FaMapMarkerAlt,
   FaBell,
-  FaFileAlt,
 } from 'react-icons/fa';
 import logo from '../assets/teamActionLogo.png';
 import TopBar from '../components/TopBar';
@@ -61,7 +60,6 @@ export default function SidebarLayout({ children }: Props) {
           roles: ['admin', 'coach', 'user'],
         },
         { label: 'Locais', to: '/pavilions', icon: <FaMapMarkerAlt />, roles: ['admin', 'coach'] },
-        { label: 'Presença', to: '/attendances', icon: <FaFileAlt />, roles: ['admin', 'coach'] },
       ],
     },
     {

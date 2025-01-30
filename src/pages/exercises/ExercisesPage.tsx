@@ -50,8 +50,8 @@ export default function ExercisesPage() {
   }
 
   /**
-   * Ao clicar “Detalhes,” expandimos. Se já estiver expandido, colapsamos.
-   * Se não estiver expandido, chamamos GET /exercises/:id para pegar images, files, youtubeUrl...
+   * Ao clicar “Detalhes,” aparece um quadro. Se já estiver expandido, desaparece.
+   * Se não estiver expandido, chama GET /exercises/:id para pegar images, files, youtubeUrl...
    */
   async function toggleDetails(exId: string) {
     if (expandedId === exId) {
