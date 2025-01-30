@@ -16,8 +16,7 @@ type AuthContextType = {
   loading: boolean;
   login: (email: string, password: string) => Promise<boolean>;
   logout: () => void;
-  registerUser: (name: string, email: string, password: string, role?: string) => Promise<boolean>;
-  setUser: React.Dispatch<React.SetStateAction<User | null>>; // Adicionamos esta linha
+  registerUser: (name: string, email: string, password: string, role?: string, clubId?: string | null) => Promise<boolean>;  setUser: React.Dispatch<React.SetStateAction<User | null>>;
 };
 
 export const AuthContext = createContext<AuthContextType>({} as AuthContextType);
@@ -74,11 +73,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     name: string,
     email: string,
     password: string,
-    role = 'user'
+    role = 'user',
+    clubId?: string | null
   ): Promise<boolean> => {
     try {
-      await api.post('/users/register', { name, email, password, role });
-      toast.success('Cadastro realizado com sucesso!');
+      await api.post('/users/register', { name, email, password, role, clubId });
       return true;
     } catch (err: any) {
       toast.error(`Erro no registro: ${err.response?.data?.error || err.message}`);

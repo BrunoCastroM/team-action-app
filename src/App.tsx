@@ -20,6 +20,7 @@ import TrainingEditPage from './pages/trainings/TrainingEditPage';
 import ExercisesPage from './pages/exercises/ExercisesPage';
 import ExerciseCreatePage from './pages/exercises/ExerciseCreatePage';
 import ExerciseEditPage from './pages/exercises/ExerciseEditPage';
+import ExerciseMediaPage from './pages/exercises/ExerciseMediaPage';
 
 import ManageTrainingExercisePage from './pages/trainingExercises/ManageTrainingExercisePage';
 
@@ -209,6 +210,16 @@ function App() {
             <PrivateRoute>
               <SidebarLayout>
                 <ExerciseEditPage />
+              </SidebarLayout>
+            </PrivateRoute>
+          }
+        />
+        <Route
+          path="/exercises/:id/media"
+          element={
+            <PrivateRoute>
+              <SidebarLayout>
+                <ExerciseMediaPage />
               </SidebarLayout>
             </PrivateRoute>
           }

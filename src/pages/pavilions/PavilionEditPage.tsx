@@ -1,4 +1,3 @@
-// src/pages/pavilions/PavilionEditPage.tsx
 import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import api from '../../services/api';
@@ -9,7 +8,10 @@ export default function PavilionEditPage() {
   const navigate = useNavigate();
 
   const [name, setName] = useState('');
-  const [address, setAddress] = useState('');
+  const [city, setCity] = useState('');
+  const [street, setStreet] = useState('');
+  const [number, setNumber] = useState('');
+  const [zipCode, setZipCode] = useState('');
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -21,8 +23,12 @@ export default function PavilionEditPage() {
     api
       .get(`/pavilions/${id}`)
       .then((resp) => {
-        setName(resp.data.name);
-        setAddress(resp.data.address || '');
+        const pav = resp.data;
+        setName(pav.name);
+        setCity(pav.city || '');
+        setStreet(pav.street || '');
+        setNumber(pav.number || '');
+        setZipCode(pav.zipCode || '');
       })
       .catch((err) => {
         console.error(err);
@@ -33,10 +39,14 @@ export default function PavilionEditPage() {
 
   const handleUpdate = async (e: React.FormEvent) => {
     e.preventDefault();
+
     try {
       await api.put(`/pavilions/${id}`, {
         name,
-        address,
+        city: city || null,
+        street: street || null,
+        number: number || null,
+        zipCode: zipCode || null,
       });
       toast.success('Pavilhão atualizado com sucesso!');
       navigate('/pavilions');
@@ -54,7 +64,7 @@ export default function PavilionEditPage() {
       <h1 className="text-2xl font-bold text-primary mb-4">Editar Pavilhão</h1>
       <form onSubmit={handleUpdate} className="max-w-sm space-y-4">
         <div>
-          <label className="block mb-1 text-gray-700">Nome do Pavilhão</label>
+          <label>Nome do Pavilhão</label>
           <input
             type="text"
             className="border p-2 w-full"
@@ -65,12 +75,42 @@ export default function PavilionEditPage() {
         </div>
 
         <div>
-          <label className="block mb-1 text-gray-700">Endereço (opcional)</label>
+          <label>Cidade</label>
           <input
             type="text"
             className="border p-2 w-full"
-            value={address}
-            onChange={(e) => setAddress(e.target.value)}
+            value={city}
+            onChange={(e) => setCity(e.target.value)}
+          />
+        </div>
+
+        <div>
+          <label>Rua</label>
+          <input
+            type="text"
+            className="border p-2 w-full"
+            value={street}
+            onChange={(e) => setStreet(e.target.value)}
+          />
+        </div>
+
+        <div>
+          <label>Número</label>
+          <input
+            type="text"
+            className="border p-2 w-full"
+            value={number}
+            onChange={(e) => setNumber(e.target.value)}
+          />
+        </div>
+
+        <div>
+          <label>Código Postal (CEP)</label>
+          <input
+            type="text"
+            className="border p-2 w-full"
+            value={zipCode}
+            onChange={(e) => setZipCode(e.target.value)}
           />
         </div>
 

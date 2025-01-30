@@ -1,42 +1,64 @@
-import React, { useContext, useState } from 'react';
-import { AuthContext } from '../context/AuthContext';
-import { useNavigate, Link } from 'react-router-dom';
-import { FaEye, FaEyeSlash } from 'react-icons/fa';
-import { toast } from 'react-toastify';
+import React, { useContext, useState, useEffect } from 'react'
+import { AuthContext } from '../context/AuthContext'
+import { useNavigate, Link } from 'react-router-dom'
+import { FaEye, FaEyeSlash } from 'react-icons/fa'
+import { toast } from 'react-toastify'
+import api from '../services/api'
+
+// Import do react-select
+import Select from 'react-select'
+
+type Club = {
+  id: string
+  name: string
+}
 
 export default function Register() {
-  const { registerUser, login } = useContext(AuthContext);
-  const [name, setName] = useState('');
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [confirmPassword, setConfirmPassword] = useState('');
-  const [role, setRole] = useState('user');
-  const [showPassword, setShowPassword] = useState(false);
-  const [showConfirm, setShowConfirm] = useState(false);
+  const { registerUser } = useContext(AuthContext)
+  const [name, setName] = useState('')
+  const [email, setEmail] = useState('')
+  const [password, setPassword] = useState('')
+  const [confirmPassword, setConfirmPassword] = useState('')
+  const [role, setRole] = useState<'user' | 'coach'>('user')
+  const [clubId, setClubId] = useState<string>('')
 
-  const navigate = useNavigate();
+  const [clubs, setClubs] = useState<Club[]>([])
 
-  const handleRegister = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const [showPassword, setShowPassword] = useState(false)
+  const [showConfirm, setShowConfirm] = useState(false)
+  const navigate = useNavigate()
+
+  useEffect(() => {
+    api
+      .get('/clubs')
+      .then((response) => setClubs(response.data))
+      .catch((error) => console.error('Erro ao carregar clubes:', error))
+  }, [])
+
+  async function handleRegister(e: React.FormEvent) {
+    e.preventDefault()
 
     // Verificar se senhas batem
     if (password !== confirmPassword) {
-      toast.error('As senhas não conferem!');
-      return;
+      toast.error('As senhas não conferem!')
+      return
     }
 
-    const success = await registerUser(name, email, password, role);
+    const success = await registerUser(name, email, password, role, clubId || null)
     if (success) {
-      // Vou decidir depois de eu deixo a pessoa logar direto quando já criar a conta ou fazer verificarção de email:
-      // const loginOk = await login(email, password)
-      // if (loginOk) {
-      //   navigate('/')
-      // }
-
-      // Aqui já vai direito para o /login:
-      navigate('/login');
+      toast.success('Cadastro realizado com sucesso!')
+      navigate('/login')
     }
-  };
+  }
+
+  // Converter clubs => react-select options
+  const clubOptions = clubs.map((club) => ({
+    value: club.id,
+    label: club.name,
+  }))
+
+  // Achar a option que corresponde a clubId
+  const selectedClub = clubOptions.find((opt) => opt.value === clubId) || null
 
   return (
     <div className="flex justify-center items-center min-h-screen bg-slate-100">
@@ -44,7 +66,9 @@ export default function Register() {
         <h1 className="text-2xl font-bold text-center mb-2">
           Bem vindo ao <span className="text-blue-500">TEAM ACTION</span>
         </h1>
-        <p className="text-center text-gray-600 mb-6">Preencha os dados para criar sua conta</p>
+        <p className="text-center text-gray-600 mb-6">
+          Preencha os dados para criar sua conta
+        </p>
 
         <form onSubmit={handleRegister} className="space-y-4">
           {/* Nome */}
@@ -111,21 +135,46 @@ export default function Register() {
             </div>
           </div>
 
-          {/* Escolha de role */}
+          {/* Tipo de Conta */}
           <div>
             <label className="block mb-1 text-gray-700">Tipo de Conta</label>
             <select
               className="w-full border-b-2 border-gray-300 focus:border-blue-500 outline-none py-1"
               value={role}
-              onChange={(e) => setRole(e.target.value)}
+              onChange={(e) => setRole(e.target.value as 'user' | 'coach')}
             >
               <option value="user">Usuário</option>
               <option value="coach">Coach</option>
-              <option value="admin">Admin</option>
             </select>
           </div>
 
-          {/* Botão de Registrar */}
+          {/* Clube (usando react-select) */}
+          <div>
+            <label className="block mb-1 text-gray-700">Clube</label>
+            <Select
+              className="basic-single"
+              classNamePrefix="select"
+              isClearable
+              isSearchable
+              name="club"
+              placeholder="Selecione (ou pesquise) um clube"
+              options={clubOptions}
+              value={selectedClub}
+              onChange={(option) => {
+                // Se user limpar, option = null
+                setClubId(option ? option.value : '')
+              }}
+              // Se quiser centralizar a "caixa" do menu, personalizamos via styles:
+              styles={{
+                menu: (provided) => ({
+                  ...provided,
+                  // Exemplo: centralizar:
+                  margin: '0 auto',
+                }),
+              }}
+            />
+          </div>
+
           <button
             type="submit"
             className="w-full bg-blue-500 text-white py-2 mt-4 rounded hover:bg-blue-600"
@@ -134,7 +183,6 @@ export default function Register() {
           </button>
         </form>
 
-        {/* Link para Login */}
         <p className="text-center mt-4 text-gray-700">
           Já tem conta?{' '}
           <Link to="/login" className="text-blue-500 underline">
@@ -143,5 +191,5 @@ export default function Register() {
         </p>
       </div>
     </div>
-  );
+  )
 }

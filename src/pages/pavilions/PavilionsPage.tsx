@@ -7,6 +7,10 @@ type Pavilion = {
   id: string;
   name: string;
   address?: string;
+  city?: string;
+  street?: string;
+  number?: string;
+  zipCode?: string;
 };
 
 export default function PavilionsPage() {
@@ -36,6 +40,7 @@ export default function PavilionsPage() {
   return (
     <div>
       <h1 className="text-2xl font-bold text-primary mb-4">Pavilhões</h1>
+
       <Link
         to="/pavilions/create"
         className="inline-block bg-blue-500 text-white px-4 py-2 rounded mb-4"
@@ -46,28 +51,40 @@ export default function PavilionsPage() {
       <table className="min-w-full bg-white border">
         <thead>
           <tr className="border-b">
-            <th className="p-2 text-left">ID</th>
             <th className="p-2 text-left">Nome</th>
-            <th className="p-2 text-left">Endereço</th>
+            <th className="p-2 text-left">Cidade</th>
+            <th className="p-2 text-left">Rua</th>
+            <th className="p-2 text-left">Número</th>
+            <th className="p-2 text-left">CEP</th>
             <th className="p-2 text-left">Ações</th>
           </tr>
         </thead>
         <tbody>
-          {pavilions.map((p) => (
-            <tr key={p.id} className="border-b">
-              <td className="p-2">{p.id}</td>
-              <td className="p-2">{p.name}</td>
-              <td className="p-2">{p.address}</td>
-              <td className="p-2">
-                <Link to={`/pavilions/${p.id}/edit`} className="mr-2 text-blue-500 underline">
-                  Editar
-                </Link>
-                <button onClick={() => handleDelete(p.id)} className="text-red-500 underline">
-                  Remover
-                </button>
+          {pavilions.length === 0 ? (
+            <tr>
+              <td colSpan={6} className="p-4 text-center text-gray-500">
+                Nenhum pavilhão cadastrado.
               </td>
             </tr>
-          ))}
+          ) : (
+            pavilions.map((p) => (
+              <tr key={p.id} className="border-b">
+                <td className="p-2">{p.name}</td>
+                <td className="p-2">{p.city || '-'}</td>
+                <td className="p-2">{p.street || '-'}</td>
+                <td className="p-2">{p.number || '-'}</td>
+                <td className="p-2">{p.zipCode || '-'}</td>
+                <td className="p-2 flex gap-2">
+                  <Link to={`/pavilions/${p.id}/edit`} className="text-blue-500 underline">
+                    Editar
+                  </Link>
+                  <button onClick={() => handleDelete(p.id)} className="text-red-500 underline">
+                    Remover
+                  </button>
+                </td>
+              </tr>
+            ))
+          )}
         </tbody>
       </table>
     </div>
