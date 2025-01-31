@@ -1,113 +1,102 @@
-// src/pages/exercises/ExerciseEditPage.tsx
-
-import React, { useEffect, useState } from 'react'
-import { useParams, useNavigate } from 'react-router-dom'
-import api from '../../services/api'
-import { toast } from 'react-toastify'
+import React, { useEffect, useState } from 'react';
+import { useParams, useNavigate } from 'react-router-dom';
+import api from '../../services/api';
+import { toast } from 'react-toastify';
 
 type Team = {
-  id: string
-  name: string
-}
+  id: string;
+  name: string;
+};
 
 export default function ExerciseEditPage() {
-  const { id } = useParams<{ id: string }>()
-  const navigate = useNavigate()
+  const { id } = useParams<{ id: string }>();
+  const navigate = useNavigate();
 
-  const [name, setName] = useState('')
-  const [category, setCategory] = useState('Ataque')
-  const [visibility, setVisibility] = useState<'privado' | 'clube' | 'comunidade'>('privado')
-  const [description, setDescription] = useState('')
-  const [suggestedTime, setSuggestedTime] = useState<number | ''>('')
-  const [teamId, setTeamId] = useState('')
-  const [youtubeUrl, setYoutubeUrl] = useState('') // NOVO: Link do YouTube
-
-  // Para listar no dropdown
-  const [teams, setTeams] = useState<Team[]>([])
-
-  // Carregando o exercise
-  const [loading, setLoading] = useState(true)
+  const [name, setName] = useState('');
+  const [category, setCategory] = useState('Ataque');
+  const [visibility, setVisibility] = useState<'privado' | 'clube' | 'comunidade'>('privado');
+  const [description, setDescription] = useState('');
+  const [suggestedTime, setSuggestedTime] = useState<number | ''>('');
+  const [teamId, setTeamId] = useState('');
+  const [youtubeUrl, setYoutubeUrl] = useState('');
+  const [teams, setTeams] = useState<Team[]>([]);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // Buscar times pro dropdown
+    // Carrega teams
     api
       .get('/teams')
       .then((resp) => setTeams(resp.data))
-      .catch((err) => console.error(err))
-  }, [])
+      .catch((err) => console.error(err));
+  }, []);
 
   useEffect(() => {
-    // Buscar o exercise atual
     if (!id) {
-      setLoading(false)
-      return
+      setLoading(false);
+      return;
     }
     api
       .get(`/exercises/${id}`)
       .then((resp) => {
-        const ex = resp.data
-        setName(ex.name)
-        setCategory(ex.category)
-        setVisibility(ex.visibility)
-        setDescription(ex.description || '')
-        setSuggestedTime(ex.suggestedTime ?? '')
-        setYoutubeUrl(ex.youtubeUrl || '') // NOVO
+        const ex = resp.data;
+        setName(ex.name);
+        setCategory(ex.category);
+        setVisibility(ex.visibility);
+        setDescription(ex.description || '');
+        setSuggestedTime(ex.suggestedTime ?? '');
+        setYoutubeUrl(ex.youtubeUrl || '');
 
-        // Se for 'clube'
         if (ex.visibility === 'clube' && ex.teamId) {
-          setTeamId(ex.teamId)
+          setTeamId(ex.teamId);
         } else {
-          setTeamId('')
+          setTeamId('');
         }
       })
       .catch((err) => {
-        console.error(err)
-        toast.error(`Erro ao buscar exercício: ${err.response?.data?.error || err.message}`)
+        console.error(err);
+        toast.error(`Erro ao buscar exercício: ${err.response?.data?.error || err.message}`);
       })
-      .finally(() => setLoading(false))
-  }, [id])
+      .finally(() => setLoading(false));
+  }, [id]);
 
-  // Salvar
   async function handleUpdate(e: React.FormEvent) {
-    e.preventDefault()
-    if (!id) return
+    e.preventDefault();
+    if (!id) return;
 
     try {
-      const body = {
+      await api.put(`/exercises/${id}`, {
         name,
         category,
         visibility,
         description: description || null,
         suggestedTime: suggestedTime === '' ? null : suggestedTime,
         teamId: visibility === 'clube' ? teamId : null,
-        youtubeUrl: youtubeUrl || null, // NOVO
-      }
-
-      await api.put(`/exercises/${id}`, body)
-      toast.success('Exercício atualizado!')
-      navigate('/exercises')
+        youtubeUrl: youtubeUrl || null,
+      });
+      toast.success('Exercício atualizado!');
+      navigate('/exercises');
     } catch (err: any) {
-      toast.error(`Erro ao atualizar exercício: ${err.response?.data?.error || err.message}`)
+      toast.error(`Erro ao atualizar exercício: ${err.response?.data?.error || err.message}`);
     }
   }
 
   function handleGoToMedia() {
-    if (!id) return
-    // Envia o user para "/exercises/:id/media"
-    navigate(`/exercises/${id}/media`)
+    if (id) {
+      navigate(`/exercises/${id}/media`);
+    }
   }
 
   if (loading) {
-    return <p>Carregando...</p>
+    return <p>Carregando...</p>;
   }
 
   return (
     <div>
       <h1 className="text-2xl font-bold text-primary mb-4">Editar Exercício</h1>
-      
+
       <form onSubmit={handleUpdate} className="max-w-sm space-y-4">
         <div>
-          <label className="block mb-1 text-gray-700">Nome</label>
+          <label>Nome</label>
           <input
             type="text"
             className="border p-2 w-full"
@@ -118,7 +107,7 @@ export default function ExerciseEditPage() {
         </div>
 
         <div>
-          <label className="block mb-1 text-gray-700">Categoria</label>
+          <label>Categoria</label>
           <select
             className="border p-2 w-full"
             value={category}
@@ -127,20 +116,18 @@ export default function ExerciseEditPage() {
             <option value="Ataque">Ataque</option>
             <option value="Defesa">Defesa</option>
             <option value="Físico">Físico</option>
-            {/* etc. */}
           </select>
         </div>
 
         <div>
-          <label className="block mb-1 text-gray-700">Visibilidade</label>
+          <label>Visibilidade</label>
           <select
             className="border p-2 w-full"
             value={visibility}
             onChange={(e) => {
-              setVisibility(e.target.value as any)
-              // se trocar p/ outro que não seja 'clube', limpamos teamId
+              setVisibility(e.target.value as any);
               if (e.target.value !== 'clube') {
-                setTeamId('')
+                setTeamId('');
               }
             }}
           >
@@ -150,10 +137,9 @@ export default function ExerciseEditPage() {
           </select>
         </div>
 
-        {/* Se 'clube', exibir dropdown */}
         {visibility === 'clube' && (
           <div>
-            <label className="block mb-1 text-gray-700">Time (Clube)</label>
+            <label>Time (Clube)</label>
             <select
               className="border p-2 w-full"
               value={teamId}
@@ -170,7 +156,7 @@ export default function ExerciseEditPage() {
         )}
 
         <div>
-          <label className="block mb-1 text-gray-700">Descrição</label>
+          <label>Descrição</label>
           <textarea
             className="border p-2 w-full"
             value={description}
@@ -179,7 +165,7 @@ export default function ExerciseEditPage() {
         </div>
 
         <div>
-          <label className="block mb-1 text-gray-700">Tempo sugerido (min)</label>
+          <label>Tempo sugerido (min)</label>
           <input
             type="number"
             className="border p-2 w-full"
@@ -190,9 +176,8 @@ export default function ExerciseEditPage() {
           />
         </div>
 
-        {/* Novo Campo: YouTube */}
         <div>
-          <label className="block mb-1 text-gray-700">Link YouTube (opcional)</label>
+          <label>Link YouTube (opcional)</label>
           <input
             type="url"
             className="border p-2 w-full"
@@ -206,15 +191,12 @@ export default function ExerciseEditPage() {
         </button>
       </form>
 
-      {/* BOTÃO IR PRA MÍDIA */}
+      {/* BOTÃO para /exercises/:id/media */}
       <div className="mt-6">
-        <button
-          onClick={handleGoToMedia}
-          className="bg-green-500 text-white px-4 py-2 rounded"
-        >
+        <button onClick={handleGoToMedia} className="bg-green-600 text-white px-4 py-2 rounded">
           Gerenciar Mídia (PDF / Imagens)
         </button>
       </div>
     </div>
-  )
+  );
 }
